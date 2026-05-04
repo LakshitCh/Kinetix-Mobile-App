@@ -48,8 +48,18 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget build(BuildContext context) {
     final today = DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
@@ -60,7 +70,14 @@ class _StatsScreenState extends State<StatsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _circleButton(Icons.chevron_left, () { PremiumEffects.triggerHaptic('light'); context.go('/home'); }),
+                  _circleButton(Icons.chevron_left, () {
+                    PremiumEffects.triggerHaptic('light');
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/home');
+                    }
+                  }),
                   const Text('My fitness journey', style: TextStyle(fontFamily: 'Playfair Display', fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.foreground)),
                   _circleButton(Icons.share_outlined, () {}),
                 ],
@@ -98,6 +115,7 @@ class _StatsScreenState extends State<StatsScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

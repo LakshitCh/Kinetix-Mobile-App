@@ -81,7 +81,11 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          context.go('/home');
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
         }
       },
       child: Scaffold(
@@ -232,7 +236,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                     SizedBox(
                       width: double.infinity, height: 56,
                       child: ElevatedButton(
-                        onPressed: () => context.go('/workout-select'),
+                        onPressed: () => context.push('/workout-select'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -247,7 +251,13 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                     SizedBox(
                       width: double.infinity, height: 56,
                       child: ElevatedButton(
-                        onPressed: () => context.go('/home'),
+                        onPressed: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/home');
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.muted,
                           foregroundColor: AppColors.foreground,

@@ -52,8 +52,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _selectedDate.month == DateTime.now().month &&
         _selectedDate.day == DateTime.now().day;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
@@ -65,7 +75,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () { PremiumEffects.triggerHaptic('light'); context.go('/home'); },
+                    onTap: () {
+                      PremiumEffects.triggerHaptic('light');
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
                     child: Container(
                       width: 40, height: 40,
                       decoration: BoxDecoration(color: AppColors.card, shape: BoxShape.circle, border: Border.all(color: AppColors.border)),
@@ -164,7 +181,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         Text('No workouts on this day', style: TextStyle(color: AppColors.mutedForeground, fontWeight: FontWeight.w500)),
                         const SizedBox(height: 8),
                         GestureDetector(
-                          onTap: () => context.go('/workout-select'),
+                          onTap: () => context.push('/workout-select'),
                           child: Text('Start one now →', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
                         ),
                       ],
@@ -221,6 +238,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

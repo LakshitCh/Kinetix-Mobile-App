@@ -259,7 +259,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen>
     PremiumEffects.speakFeedback('Workout ended. Great job.');
     _stopImageStream();
     _sessionTimer?.cancel();
-    context.push(
+    context.go(
       '/summary',
       extra: {
         'reps': _stats.repCount,
@@ -284,7 +284,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen>
       body: Stack(
         children: [
           // ═══════════════════════════════════════════
-          //  CAMERA PREVIEW
+          //  CAMERA PREVIEW & POSE SKELETON
           // ═══════════════════════════════════════════
           if (_isCameraInitialized && _cameraController != null)
             SizedBox(
@@ -295,7 +295,26 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen>
                 child: SizedBox(
                   width: _cameraController!.value.previewSize?.height ?? screenSize.width,
                   height: _cameraController!.value.previewSize?.width ?? screenSize.height,
-                  child: CameraPreview(_cameraController!),
+                  child: Stack(
+                    children: [
+                      CameraPreview(_cameraController!),
+                      if (_currentPoses.isNotEmpty && _imageSize != null)
+                        CustomPaint(
+                          size: Size(
+                            _cameraController!.value.previewSize?.height ?? screenSize.width,
+                            _cameraController!.value.previewSize?.width ?? screenSize.height,
+                          ),
+                          painter: PosePainter(
+                            poses: _currentPoses,
+                            imageSize: _imageSize!,
+                            rotation: InputImageRotation.rotation0deg,
+                            cameraLensDirection: _cameras.isNotEmpty
+                                ? _cameras[_cameraIndex].lensDirection
+                                : CameraLensDirection.front,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -316,22 +335,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen>
                     ),
                   ],
                 ),
-              ),
-            ),
-
-          // ═══════════════════════════════════════════
-          //  POSE SKELETON OVERLAY
-          // ═══════════════════════════════════════════
-          if (_currentPoses.isNotEmpty && _imageSize != null)
-            CustomPaint(
-              size: screenSize,
-              painter: PosePainter(
-                poses: _currentPoses,
-                imageSize: _imageSize!,
-                rotation: InputImageRotation.rotation0deg,
-                cameraLensDirection: _cameras.isNotEmpty
-                    ? _cameras[_cameraIndex].lensDirection
-                    : CameraLensDirection.front,
               ),
             ),
 

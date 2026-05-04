@@ -43,15 +43,26 @@ class _WorkoutSelectionScreenState extends State<WorkoutSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          Column(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Column(
             children: [
               // Header
               Container(
-                padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 12, 16, 16),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                 decoration: BoxDecoration(
                   color: AppColors.background.withValues(alpha: 0.8),
                   border: Border(bottom: BorderSide(color: AppColors.border)),
@@ -63,7 +74,11 @@ class _WorkoutSelectionScreenState extends State<WorkoutSelectionScreen> {
                         GestureDetector(
                           onTap: () {
                             PremiumEffects.triggerHaptic('light');
-                            context.pop();
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/home');
+                            }
                           },
                           child: Container(
                             width: 40,
@@ -239,7 +254,8 @@ class _WorkoutSelectionScreenState extends State<WorkoutSelectionScreen> {
               ),
             ],
           ),
-
+        ),
+          
           // Rep selection bottom sheet
           if (_selectedExercise != null) ...[
             // Backdrop
@@ -253,7 +269,7 @@ class _WorkoutSelectionScreenState extends State<WorkoutSelectionScreen> {
               left: 0,
               right: 0,
               child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
                 decoration: BoxDecoration(
                   color: AppColors.card,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
@@ -333,6 +349,7 @@ class _WorkoutSelectionScreenState extends State<WorkoutSelectionScreen> {
             ),
           ],
         ],
+      ),
       ),
     );
   }

@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     // Avatar
                     GestureDetector(
-                      onTap: () => context.go('/profile'),
+                      onTap: () => context.push('/profile'),
                       child: Container(
                         width: 48,
                         height: 48,
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 12),
                     GestureDetector(
-                      onTap: () => context.go('/profile'),
+                      onTap: () => context.push('/profile'),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -149,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 GestureDetector(
                   onTap: () {
                     PremiumEffects.triggerHaptic('heavy');
-                    context.go('/workout-select');
+                    context.push('/workout-select');
                   },
                   child: Container(
                     width: double.infinity,
@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(fontFamily: 'Playfair Display', fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.foreground),
                     ),
                     GestureDetector(
-                      onTap: () => context.go('/workout-select'),
+                      onTap: () => context.push('/workout-select'),
                       child: Row(
                         children: [
                           Text('See all', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground, fontWeight: FontWeight.w500)),
@@ -268,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     GestureDetector(
                       onTap: () {
                         PremiumEffects.triggerHaptic('light');
-                        context.go('/stats');
+                        context.push('/stats');
                       },
                       child: Row(
                         children: [
@@ -318,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         PremiumEffects.triggerHaptic('light');
-        context.go('/workout-select', extra: categoryId);
+        context.push('/workout-select', extra: categoryId);
       },
       child: Container(
         width: 96,
