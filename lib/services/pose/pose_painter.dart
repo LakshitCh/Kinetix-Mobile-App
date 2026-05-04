@@ -4,7 +4,7 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import '../../core/theme/app_colors.dart';
 
 /// CustomPainter that draws the pose skeleton overlay on top of the camera feed.
-/// Port of @mediapipe/drawing_utils drawConnectors/drawLandmarks.
+/// Custom painter for drawing detected pose landmarks and skeletal connections.
 class PosePainter extends CustomPainter {
   final List<Pose> poses;
   final Size imageSize;

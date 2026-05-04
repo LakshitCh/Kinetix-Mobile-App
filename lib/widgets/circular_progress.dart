@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 
-/// Circular progress indicator — exact port of CircularProgress.tsx.
+/// Circular progress indicator widget.
 class CircularProgressWidget extends StatelessWidget {
   final double value; // 0 to 100
   final double size;

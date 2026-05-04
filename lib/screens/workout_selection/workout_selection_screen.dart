@@ -4,7 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/premium_effects.dart';
 import '../../models/exercise.dart';
 
-/// Workout selection screen — exact port of WorkoutSelectionScreen.tsx.
+/// Workout selection screen with category filtering and rep target configuration.
 class WorkoutSelectionScreen extends StatefulWidget {
   final String? initialCategory;
   const WorkoutSelectionScreen({super.key, this.initialCategory});

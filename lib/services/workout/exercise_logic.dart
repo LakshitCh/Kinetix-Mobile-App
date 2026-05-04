@@ -69,7 +69,7 @@ class ExerciseStats {
   );
 }
 
-/// Full port of useExerciseLogic.js — the 390-line rep counting state machine.
+/// Exercise rep counting state machine with joint angle analysis.
 /// Handles all 13 exercises with angle-based phase detection.
 class ExerciseLogic {
   final ExerciseState _state = ExerciseState();

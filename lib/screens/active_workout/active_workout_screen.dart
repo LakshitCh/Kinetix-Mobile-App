@@ -11,7 +11,6 @@ import '../../services/pose/pose_painter.dart';
 import '../../services/workout/exercise_logic.dart';
 
 /// Active Workout Screen — full integration of Camera + ML Kit + Exercise Logic.
-/// Port of ActiveWorkoutScreen.tsx with real-time pose detection.
 class ActiveWorkoutScreen extends StatefulWidget {
   final String exercise;
   final int targetReps;

@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-/// Haptic feedback utilities — port of premiumEffects.ts triggerHaptic().
+/// Haptic feedback and voice coaching utilities.
 class PremiumEffects {
   static final FlutterTts _tts = FlutterTts();
   static bool _ttsInitialized = false;
@@ -42,7 +42,7 @@ class PremiumEffects {
     }
   }
 
-  /// Speak feedback text — port of premiumEffects.ts speakFeedback().
+  /// Speak feedback text using text-to-speech.
   static Future<void> speakFeedback(String text) async {
     await _initTts();
     await _tts.stop(); // Cancel any ongoing speech

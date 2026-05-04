@@ -1,30 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/premium_effects.dart';
+import '../../services/local/local_storage_service.dart';
 
-/// Calendar screen — exact port of CalendarScreen.tsx.
-class CalendarScreen extends StatelessWidget {
+/// Calendar screen — shows real workout history by day.
+class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final dates = [
-      {'day': 'Mon', 'date': '11', 'active': false},
-      {'day': 'Tue', 'date': '12', 'active': true},
-      {'day': 'Wed', 'date': '13', 'active': false},
-      {'day': 'Thu', 'date': '14', 'active': false},
-      {'day': 'Fri', 'date': '15', 'active': false},
-      {'day': 'Sat', 'date': '16', 'active': false},
-      {'day': 'Sun', 'date': '17', 'active': false},
-    ];
+  State<CalendarScreen> createState() => _CalendarScreenState();
+}
 
-    final workouts = [
-      {'time': '07:30 - 08:15', 'title': 'Squats Focus', 'subtitle': 'Lower Body AI', 'color': AppColors.secondary, 'completed': true},
-      {'time': '12:00 - 13:00', 'title': 'Full Body Circuit', 'subtitle': 'High Intensity', 'color': AppColors.primary, 'completed': true},
-      {'time': '16:00 - 17:00', 'title': 'Push-up Mastery', 'subtitle': 'Upper Body AI', 'color': AppColors.secondary, 'completed': false},
-      {'time': '18:30 - 19:15', 'title': 'Core Blast', 'subtitle': 'Planks & Crunches', 'color': AppColors.primary, 'completed': false},
-    ];
+class _CalendarScreenState extends State<CalendarScreen> {
+  late DateTime _selectedDate;
+  late List<DateTime> _weekDates;
+  List<Map<String, dynamic>> _dayWorkouts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+    _buildWeek();
+    _loadWorkoutsForDay();
+  }
+
+  void _buildWeek() {
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    _weekDates = List.generate(7, (i) => monday.add(Duration(days: i)));
+  }
+
+  Future<void> _loadWorkoutsForDay() async {
+    final workouts = await LocalStorageService.getWorkoutsForDate(_selectedDate);
+    if (mounted) {
+      setState(() => _dayWorkouts = workouts);
+    }
+  }
+
+  void _selectDate(DateTime date) {
+    setState(() => _selectedDate = date);
+    _loadWorkoutsForDay();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final selectedDateFormatted = DateFormat('EEEE, MMMM d').format(_selectedDate);
+    final isToday = _selectedDate.year == DateTime.now().year &&
+        _selectedDate.month == DateTime.now().month &&
+        _selectedDate.day == DateTime.now().day;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -39,7 +65,7 @@ class CalendarScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () { PremiumEffects.triggerHaptic('light'); context.pop(); },
+                    onTap: () { PremiumEffects.triggerHaptic('light'); context.go('/home'); },
                     child: Container(
                       width: 40, height: 40,
                       decoration: BoxDecoration(color: AppColors.card, shape: BoxShape.circle, border: Border.all(color: AppColors.border)),
@@ -55,29 +81,39 @@ class CalendarScreen extends StatelessWidget {
               // Date scroller
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: dates.map((d) {
-                  final isActive = d['active'] as bool;
-                  return Container(
-                    width: 48,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: isActive ? AppColors.primary : Colors.transparent,
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: isActive ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.2), blurRadius: 12)] : [],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          d['day'] as String,
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: isActive ? Colors.white : AppColors.mutedForeground),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          d['date'] as String,
-                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: isActive ? Colors.white : AppColors.foreground),
-                        ),
-                      ],
+                children: _weekDates.asMap().entries.map((e) {
+                  final date = e.value;
+                  final isSelected = date.day == _selectedDate.day &&
+                      date.month == _selectedDate.month &&
+                      date.year == _selectedDate.year;
+
+                  return GestureDetector(
+                    onTap: () {
+                      PremiumEffects.triggerHaptic('light');
+                      _selectDate(date);
+                    },
+                    child: Container(
+                      width: 48,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: isSelected ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.2), blurRadius: 12)] : [],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            dayNames[e.key],
+                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: isSelected ? Colors.white : AppColors.mutedForeground),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${date.day}',
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : AppColors.foreground),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }).toList(),
@@ -110,59 +146,78 @@ class CalendarScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Workout list
-              const Text('Tuesday, December 12', style: TextStyle(fontFamily: 'Playfair Display', fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.foreground)),
+              Text(
+                isToday ? 'Today' : selectedDateFormatted,
+                style: const TextStyle(fontFamily: 'Playfair Display', fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.foreground),
+              ),
               const SizedBox(height: 16),
-              ...workouts.map((w) {
-                final completed = w['completed'] as bool;
-                final color = w['color'] as Color;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.border)),
-                    child: Row(
+
+              if (_dayWorkouts.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.border)),
+                  child: Center(
+                    child: Column(
                       children: [
-                        Container(
-                          width: 48, height: 48,
-                          decoration: BoxDecoration(color: color.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
-                          child: Icon(Icons.check_circle_outline, size: 24, color: color),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(w['time'] as String, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: AppColors.mutedForeground)),
-                              const SizedBox(height: 4),
-                              Text(w['title'] as String, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.foreground)),
-                              Text(w['subtitle'] as String, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.mutedForeground)),
-                            ],
-                          ),
-                        ),
+                        Icon(Icons.event_busy, size: 40, color: AppColors.mutedForeground.withValues(alpha: 0.3)),
+                        const SizedBox(height: 16),
+                        Text('No workouts on this day', style: TextStyle(color: AppColors.mutedForeground, fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 8),
                         GestureDetector(
-                          onTap: () {
-                            PremiumEffects.triggerHaptic('light');
-                            context.push('/workout-select');
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: completed ? Colors.transparent : AppColors.secondary,
-                              borderRadius: BorderRadius.circular(100),
-                              border: completed ? Border.all(color: AppColors.border) : null,
-                              boxShadow: completed ? [] : [BoxShadow(color: AppColors.secondary.withValues(alpha: 0.3), blurRadius: 8)],
-                            ),
-                            child: Text(
-                              completed ? 'Done' : 'Join',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: completed ? AppColors.mutedForeground : Colors.white),
-                            ),
-                          ),
+                          onTap: () => context.go('/workout-select'),
+                          child: Text('Start one now →', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
                         ),
                       ],
                     ),
                   ),
-                );
-              }),
+                )
+              else
+                ..._dayWorkouts.map((w) {
+                  final ts = DateTime.tryParse(w['timestamp'] ?? '');
+                  final timeStr = ts != null ? DateFormat('h:mm a').format(ts) : '';
+                  final exerciseName = (w['exerciseName'] as String? ?? 'Workout').replaceAll('-', ' ');
+                  final duration = LocalStorageService.formatDuration(w['durationSeconds'] ?? 0);
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.border)),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48, height: 48,
+                            decoration: BoxDecoration(color: AppColors.secondary.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+                            child: Icon(Icons.check_circle_outline, size: 24, color: AppColors.secondary),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(timeStr, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: AppColors.mutedForeground)),
+                                const SizedBox(height: 4),
+                                Text(exerciseName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.foreground)),
+                                Text('${w['reps']} reps • $duration', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.mutedForeground)),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Text(
+                              'Done',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.mutedForeground),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
             ],
           ),
         ),

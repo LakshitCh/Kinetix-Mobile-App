@@ -3,7 +3,7 @@ import '../core/theme/app_colors.dart';
 import '../core/utils/premium_effects.dart';
 import 'package:go_router/go_router.dart';
 
-/// Floating pill-shaped bottom navigation — exact port of BottomNav.tsx.
+/// Floating pill-shaped bottom navigation bar.
 class BottomNav extends StatelessWidget {
   const BottomNav({super.key});
 

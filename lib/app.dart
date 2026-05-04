@@ -11,10 +11,22 @@ import 'screens/calendar/calendar_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'widgets/bottom_nav.dart';
 import 'core/theme/app_colors.dart';
+import 'services/local/local_storage_service.dart';
 
-/// GoRouter configuration — maps React routes to Flutter screens.
+/// GoRouter configuration with local auth redirect.
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
+  redirect: (context, state) async {
+    final isLoggedIn = await LocalStorageService.isLoggedIn();
+    final location = state.uri.toString();
+
+    // If logged in and on onboarding or auth, redirect to home
+    if (isLoggedIn && (location == '/' || location == '/auth')) {
+      return '/home';
+    }
+
+    return null; // no redirect
+  },
   routes: [
     // Onboarding (standalone — no bottom nav)
     GoRoute(
@@ -51,6 +63,17 @@ final GoRouter appRouter = GoRouter(
           ),
         ),
         GoRoute(
+          path: '/workout-select',
+          pageBuilder: (context, state) {
+            final category = state.extra as String?;
+            return CustomTransitionPage(
+              child: WorkoutSelectionScreen(initialCategory: category),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                  FadeTransition(opacity: animation, child: child),
+            );
+          },
+        ),
+        GoRoute(
           path: '/stats',
           pageBuilder: (context, state) => CustomTransitionPage(
             child: const StatsScreen(),
@@ -75,15 +98,6 @@ final GoRouter appRouter = GoRouter(
           ),
         ),
       ],
-    ),
-
-    // Workout Selection (standalone with back button)
-    GoRoute(
-      path: '/workout-select',
-      builder: (context, state) {
-        final category = state.extra as String?;
-        return WorkoutSelectionScreen(initialCategory: category);
-      },
     ),
 
     // Active Workout (standalone — full-screen camera)

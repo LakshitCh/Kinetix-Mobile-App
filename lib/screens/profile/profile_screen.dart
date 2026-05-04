@@ -1,13 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/premium_effects.dart';
-import '../../services/api/api_client.dart';
+import '../../services/local/local_storage_service.dart';
 
-/// Profile screen — exact port of ProfileScreen.tsx.
-class ProfileScreen extends StatelessWidget {
+/// Profile screen — powered by real local user data.
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String _userName = '';
+  int _totalWorkouts = 0;
+  int _totalReps = 0;
+  int _streak = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final name = await LocalStorageService.getUser();
+    final stats = await LocalStorageService.getStats();
+    if (mounted) {
+      setState(() {
+        _userName = name ?? 'User';
+        _totalWorkouts = stats['totalWorkouts'] as int;
+        _totalReps = stats['totalReps'] as int;
+        _streak = stats['streak'] as int;
+      });
+    }
+  }
+
+  String get _userInitial =>
+      _userName.isNotEmpty ? _userName[0].toUpperCase() : '?';
+
+  // Compute an average score from reps per workout
+  int get _avgScore {
+    if (_totalWorkouts == 0) return 0;
+    final avgReps = _totalReps / _totalWorkouts;
+    return (75 + (avgReps * 2).clamp(0, 25)).round();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,31 +81,44 @@ class ProfileScreen extends StatelessWidget {
                       width: 80, height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.muted,
+                        gradient: const LinearGradient(
+                          colors: [AppColors.neonCyan, AppColors.neonGreen],
+                        ),
                         border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 2),
-                        image: const DecorationImage(
-                          image: NetworkImage('https://i.pravatar.cc/150?u=a042581f4e29026704d'),
-                          fit: BoxFit.cover,
+                      ),
+                      child: Center(
+                        child: Text(
+                          _userInitial,
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Alex Rivera', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.foreground)),
-                        const SizedBox(height: 4),
-                        Text('alex@example.com', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground, fontWeight: FontWeight.w500)),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(100),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_userName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.foreground)),
+                          const SizedBox(height: 4),
+                          Text('Kinetix User', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground, fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Text(
+                              _totalWorkouts >= 10 ? 'Pro Member' : _totalWorkouts >= 1 ? 'Active' : 'New',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.secondary),
+                            ),
                           ),
-                          child: Text('Pro Member', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.secondary)),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -77,11 +128,11 @@ class ProfileScreen extends StatelessWidget {
               // Stats grid
               Row(
                 children: [
-                  _statBox('47', 'WORKOUTS'),
+                  _statBox('$_totalWorkouts', 'WORKOUTS'),
                   const SizedBox(width: 12),
-                  _statBox('86', 'AVG SCORE'),
+                  _statBox('$_avgScore', 'AVG SCORE'),
                   const SizedBox(width: 12),
-                  _statBox('12', 'STREAK'),
+                  _statBox('$_streak', 'STREAK'),
                 ],
               ),
               const SizedBox(height: 32),
@@ -106,10 +157,7 @@ class ProfileScreen extends StatelessWidget {
               GestureDetector(
                 onTap: () async {
                   PremiumEffects.triggerHaptic('heavy');
-                  // Clear stored auth data
-                  const storage = FlutterSecureStorage();
-                  await storage.deleteAll();
-                  ApiClient.clearToken();
+                  await LocalStorageService.clearAll();
                   if (context.mounted) context.go('/auth');
                 },
                 child: Container(
