@@ -1,0 +1,54 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.idea/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch.json and tasks.json to configure
+# VS Code to run your project.
+.vscode/
+
+# Flutter/Dart related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+__pycache__/
+build/
+
+# Android related
+**/android/**/generated/
+**/android/gradle/
+**/android/local.properties
+**/android/settings.gradle
+**/android/key.properties
+**/android/app/src/main/res/raw/
+*.jks
+*.keystore
+
+# iOS related
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Pods/
+**/ios/Runner.xcworkspace/xcuserdata/
+
+# Kinetix Specific: Hide local IP configuration
+lib/core/constants/local_config.dart
