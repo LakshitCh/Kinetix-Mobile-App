@@ -6,21 +6,21 @@
 
 ## ⚡ DEMO VERSION (Recommended)
 
-The demo version is located in a separate branch (`demo-local`). This version is:
+The demo version is located in a separate branch (`local-demo`). This version is:
 * **Fully functional**
 * **Runs completely offline** (no backend needed)
 * **Recommended for testing and live demonstrations**
 
 **To run the demo:**
 ```bash
-git checkout demo-local
+git checkout local-demo
 flutter pub get
 flutter run
 ```
 
 ## 🔀 Project Versions
 
-* **Demo Build (`demo-local` branch):**
+* **Demo Build (`local-demo` branch):**
   * Local storage using SharedPreferences
   * No backend dependency or active API calls
   * Optimized for immediate, on-device usage
@@ -35,7 +35,7 @@ flutter run
 * **Real-Time Pose Estimation:** Integrates Google ML Kit's high-performance pose detection model directly into the camera feed.
 * **Intelligent Exercise Tracking:** Automatically tracks repetitions for various exercises (squats, push-ups, jumping jacks, etc.) by calculating skeletal joint angles.
 * **High-Performance Rendering:** Custom UI rendering pipeline using Flutter's `CustomPainter` to draw real-time skeletal wireframes with zero lag.
-* **Premium Dark Mode UI:** A beautifully crafted, modern interface with glassmorphism effects, smooth animations, and a focus on user experience.
+* **Beautiful Mobile UI:** Designed a beautiful, modern UI interface suitable for mobile devices with a focus on user experience.
 * **100% Privacy Focused:** All computer vision and AI processing happens **on-device**. No video feeds are ever recorded or sent to the cloud.
 
 ## 🛠️ Technology Stack
@@ -44,10 +44,6 @@ flutter run
 * **Computer Vision:** Google ML Kit (Pose Detection Stream Mode)
 * **Local Storage:** SharedPreferences (Demo Version)
 * **Backend Integration (Main Branch):** Planned API layer using Node.js, Express, and MongoDB
-
-## 📱 Screenshots & UI
-
-*(Add screenshots of your application here to showcase the on-device AI tracking and modern UI)*
 
 ## 🚀 Getting Started (Full System)
 
