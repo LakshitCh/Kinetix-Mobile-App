@@ -6,21 +6,21 @@
 
 ## ⚡ DEMO VERSION (Recommended)
 
-The demo version is located in a separate branch (`demo-local`). This version is:
+The demo version is located in a separate branch (`local-demo`). This version is:
 * **Fully functional**
 * **Runs completely offline** (no backend needed)
 * **Recommended for testing and live demonstrations**
 
 **To run the demo:**
 ```bash
-git checkout demo-local
+git checkout local-demo
 flutter pub get
 flutter run
 ```
 
 ## 🔀 Project Versions
 
-* **Demo Build (`demo-local` branch):**
+* **Demo Build (`local-demo` branch):**
   * Local storage using SharedPreferences
   * No backend dependency or active API calls
   * Optimized for immediate, on-device usage
