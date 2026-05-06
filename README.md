@@ -69,3 +69,9 @@ flutter run
    ```bash
    flutter run
    ```
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+This project is open-source for educational purposes. If you use or build upon this work, proper attribution is expected.
